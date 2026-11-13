@@ -6,7 +6,7 @@ let state = {
   bgPreset: 'sky',
   bgBlur: 2,
   bgVignette: 35,
-  layers: [],
+  layers: new Array(),
   selectedId: null,
   isDragging: false,
   dragOffsetX: 0,
@@ -24,7 +24,7 @@ function onEvent(id, evt, fn) {
 }
 
 function initTemplate() {
-  state.layers = [
+  state.layers = new Array(
     {
       id: 1,
       type: 'avatar',
@@ -77,7 +77,7 @@ function initTemplate() {
       stroke: '#000000',
       glow: '#3b82f6'
     }
-  ];
+  );
   state.selectedId = 1;
   updateUI();
   render();
@@ -85,7 +85,7 @@ function initTemplate() {
 
 function drawBackground() {
   ctx.save();
-  ctx.filter = `blur(${state.bgBlur}px)`;
+  ctx.filter = 'blur(' + state.bgBlur + 'px)';
 
   if (state.bgImage) {
     const scale = Math.max(canvas.width / state.bgImage.width, canvas.height / state.bgImage.height);
@@ -132,7 +132,7 @@ function drawBackground() {
       canvas.width / 2, canvas.height / 2, canvas.width * 0.75
     );
     rad.addColorStop(0, 'rgba(0,0,0,0)');
-    rad.addColorStop(1, `rgba(0,0,0,${state.bgVignette / 100})`);
+    rad.addColorStop(1, 'rgba(0,0,0,' + (state.bgVignette / 100) + ')');
     ctx.fillStyle = rad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
@@ -159,24 +159,18 @@ function drawLayer(layer) {
       ctx.strokeText(layer.text, 0, 0);
       ctx.fillStyle = layer.color || '#ffffff';
       ctx.fillText(layer.text, 0, 0);
-    } else if (layer.type === 'avatar') {
-      BloxdAssets.drawAvatar(ctx, layer);
-    } else if (layer.type === 'sword') {
-      BloxdAssets.drawSword(ctx);
-    } else if (layer.type === 'knightSword') {
-      BloxdAssets.drawKnightSword(ctx);
-    } else if (layer.type === 'moonPick') {
-      BloxdAssets.drawMoonstonePickaxe(ctx);
-    } else if (layer.type === 'orb') {
-      BloxdAssets.drawMoonstoneOrb(ctx);
-    } else if (layer.type === 'fireball') {
-      BloxdAssets.drawFireball(ctx);
-    } else if (layer.type === 'bed') {
-      BloxdAssets.drawBedwarsBed(ctx);
     } else if (layer.type === 'image' && layer.img) {
       const w = 260;
       const h = (layer.img.height / layer.img.width) * w;
       ctx.drawImage(layer.img, -w / 2, -h / 2, w, h);
+    } else if (typeof BloxdAssets !== 'undefined') {
+      if (layer.type === 'avatar') BloxdAssets.drawAvatar(ctx, layer);
+      else if (layer.type === 'sword') BloxdAssets.drawSword(ctx);
+      else if (layer.type === 'knightSword') BloxdAssets.drawKnightSword(ctx);
+      else if (layer.type === 'moonPick') BloxdAssets.drawMoonstonePickaxe(ctx);
+      else if (layer.type === 'orb') BloxdAssets.drawMoonstoneOrb(ctx);
+      else if (layer.type === 'fireball') BloxdAssets.drawFireball(ctx);
+      else if (layer.type === 'bed') BloxdAssets.drawBedwarsBed(ctx);
     }
   } finally {
     ctx.restore();
@@ -193,15 +187,15 @@ function updateUI() {
   const list = document.getElementById('layerList');
   if (!list) return;
   list.innerHTML = '';
-  state.layers.slice().reverse().forEach(layer => {
+  state.layers.slice().reverse().forEach(function(layer) {
     const div = document.createElement('div');
     div.className = 'layer-item' + (layer.id === state.selectedId ? ' active' : '');
-    div.textContent = layer.type === 'text' ? `T: ${layer.text}` : layer.name;
-    div.onclick = () => { state.selectedId = layer.id; updateUI(); };
+    div.textContent = layer.type === 'text' ? 'T: ' + layer.text : layer.name;
+    div.onclick = function() { state.selectedId = layer.id; updateUI(); };
     list.appendChild(div);
   });
 
-  const selected = state.layers.find(l => l.id === state.selectedId);
+  const selected = state.layers.find(function(l) { return l.id === state.selectedId; });
   const inspector = document.getElementById('inspector');
   if (!inspector) return;
   if (!selected) {
@@ -215,7 +209,7 @@ function updateUI() {
   if (textCtrl) textCtrl.style.display = selected.type === 'text' ? 'flex' : 'none';
   if (avatarCtrl) avatarCtrl.style.display = selected.type === 'avatar' ? 'flex' : 'none';
 
-  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const setVal = function(id, val) { const el = document.getElementById(id); if (el) el.value = val; };
   setVal('propScale', selected.scale);
   setVal('propRotate', selected.rotation);
   setVal('propGlow', selected.glow || '#000000');
@@ -243,10 +237,10 @@ function getMousePos(evt) {
   };
 }
 
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener('mousedown', function(e) {
   const pos = getMousePos(e);
   for (let i = state.layers.length - 1; i >= 0; i--) {
-    const l = state.layers[i];
+    const l = state.layers.at(i);
     if (Math.abs(pos.x - l.x) < 160 * l.scale && Math.abs(pos.y - l.y) < 160 * l.scale) {
       state.selectedId = l.id;
       state.isDragging = true;
@@ -258,10 +252,10 @@ canvas.addEventListener('mousedown', (e) => {
   }
 });
 
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener('mousemove', function(e) {
   if (!state.isDragging) return;
   const pos = getMousePos(e);
-  const selected = state.layers.find(l => l.id === state.selectedId);
+  const selected = state.layers.find(function(l) { return l.id === state.selectedId; });
   if (selected) {
     selected.x = pos.x - state.dragOffsetX;
     selected.y = pos.y - state.dragOffsetY;
@@ -269,102 +263,101 @@ canvas.addEventListener('mousemove', (e) => {
   }
 });
 
-window.addEventListener('mouseup', () => { state.isDragging = false; });
+window.addEventListener('mouseup', function() { state.isDragging = false; });
 
-onEvent('canvasPreset', 'change', (e) => {
+onEvent('canvasPreset', 'change', function(e) {
   const parts = e.target.value.split('x');
-  canvas.width = Number(parts.item ? parts.item(0) : parts.at(0));
+  canvas.width = Number(parts.at(0));
   canvas.height = Number(parts.at(1));
   render();
 });
 
-onEvent('bgPreset', 'change', (e) => {
+onEvent('bgPreset', 'change', function(e) {
   state.bgImage = null;
   state.bgPreset = e.target.value;
   render();
 });
 
-onEvent('bgUpload', 'change', (e) => {
+onEvent('bgUpload', 'change', function(e) {
   const file = e.target.files.item(0);
   if (!file) return;
   const img = new Image();
-  img.onload = () => { state.bgImage = img; render(); };
+  img.onload = function() { state.bgImage = img; render(); };
   img.src = URL.createObjectURL(file);
 });
 
-onEvent('bgBlur', 'input', (e) => { state.bgBlur = e.target.value; render(); });
-onEvent('bgVignette', 'input', (e) => { state.bgVignette = e.target.value; render(); });
+onEvent('bgBlur', 'input', function(e) { state.bgBlur = e.target.value; render(); });
+onEvent('bgVignette', 'input', function(e) { state.bgVignette = e.target.value; render(); });
 
 function addLayer(obj) {
   const id = Date.now();
-  state.layers.push({ id, x: canvas.width / 2, y: canvas.height / 2, scale: 1, rotation: 0, glow: '#000000', ...obj });
+  state.layers.push(Object.assign({ id: id, x: canvas.width / 2, y: canvas.height / 2, scale: 1, rotation: 0, glow: '#000000' }, obj));
   state.selectedId = id;
   updateUI();
   render();
 }
 
-onClick('addTextBtn', () => addLayer({ type: 'text', name: 'Text', text: 'NEW TEXT', color: '#ffffff', stroke: '#000000' }));
-onClick('addPlayerBtn', () => addLayer({ type: 'avatar', name: 'Bloxd Avatar', pose: 'hero', skin: '#f5cba7', shirt: '#ef4444', pants: '#1e293b', hair: '#1e293b', cape: false }));
-onClick('addKnightSwordBtn', () => addLayer({ type: 'knightSword', name: 'Knight Sword', glow: '#facc15' }));
-onClick('addSwordBtn', () => addLayer({ type: 'sword', name: 'Diamond Sword', glow: '#38bdf8' }));
-onClick('addMoonPickBtn', () => addLayer({ type: 'moonPick', name: 'Moonstone Pickaxe', glow: '#38bdf8' }));
-onClick('addOrbBtn', () => addLayer({ type: 'orb', name: 'Moonstone Orb', glow: '#38bdf8' }));
-onClick('addFireballBtn', () => addLayer({ type: 'fireball', name: 'Fireball', glow: '#f97316' }));
-onClick('addBedBtn', () => addLayer({ type: 'bed', name: 'Bedwars Bed' }));
-
-onEvent('stickerUpload', 'change', (e) => {
-const file = e.target.files.item(0); 
-if (!file) return; 
-const img = new Image(); 
-img.onload = () => addLayer({ type: 'image', name: file.name.slice(0, 14), img }); 
-img.src = URL.createObjectURL(file); 
+onClick('addTextBtn', function() { addLayer({ type: 'text', name: 'Text', text: 'NEW TEXT', color: '#ffffff', stroke: '#000000' }); });
+onClick('addPlayerBtn', function() { addLayer({ type: 'avatar', name: 'Bloxd Avatar', pose: 'hero', skin: '#f5cba7', shirt: '#ef4444', pants: '#1e293b', hair: '#1e293b', cape: false }); });
+onClick('addKnightSwordBtn', function() { addLayer({ type: 'knightSword', name: 'Knight Sword', glow: '#facc15' }); });
+onClick('addSwordBtn', function() { addLayer({ type: 'sword', name: 'Diamond Sword', glow: '#38bdf8' }); });
+onClick('addMoonPickBtn', function() { addLayer({ type: 'moonPick', name: 'Moonstone Pickaxe', glow: '#38bdf8' }); });
+onClick('addOrbBtn', function() { addLayer({ type: 'orb', name: 'Moonstone Orb', glow: '#38bdf8' }); });
+onClick('addFireballBtn', function() { addLayer({ type: 'fireball', name: 'Fireball', glow: '#f97316' }); });
+onClick('addBedBtn', function() { addLayer({ type: 'bed', name: 'Bedwars Bed' }); });
+onEvent('stickerUpload', 'change', function(e) {
+const file = e.target.files.item(0);
+if (!file) return;
+const img = new Image();
+img.onload = function() { addLayer({ type: 'image', name: file.name.slice(0, 14), img: img }); };
+img.src = URL.createObjectURL(file);
 });
-const bindProp = (elId, prop, eventType = 'input') => { 
-onEvent(elId, eventType, (e) => { 
-const sel = state.layers.find(l => l.id === state.selectedId); 
-if (!sel) return; 
-if (e.target.type === 'checkbox') { 
-sel[prop] = e.target.checked; 
-} else if (e.target.type === 'range') { 
-sel[prop] = parseFloat(e.target.value); 
-} else { 
-sel[prop] = e.target.value; 
-} 
-if (prop === 'text') updateUI( 
-) 
-; 
-};
-bindProp('propText', 'text'); 
-bindProp('propColor', 'color'); 
-bindProp('propStroke', 'stroke'); 
-bindProp('propPose', 'pose', 'change'); 
-bindProp('propSkin', 'skin'); 
-bindProp('propHair', 'hair'); 
-bindProp('propShirt', 'shirt'); 
-bindProp('propPants', 'pants'); 
-bindProp('propCape', 'cape', 'change'); 
-bindProp('propScale', 'scale'); 
-bindProp('propRotate', 'rotation'); 
+function bindProp(elId, prop, eventType) {
+onEvent(elId, eventType || 'input', function(e) {
+const sel = state.layers.find(function(l) { return l.id === state.selectedId; });
+if (!sel) return;
+if (e.target.type === 'checkbox') {
+sel[prop] = e.target.checked;
+} else if (e.target.type === 'range') {
+sel[prop] = parseFloat(e.target.value);
+} else {
+sel[prop] = e.target.value;
+}
+if (prop === 'text') updateUI();
+render();
+});
+}
+bindProp('propText', 'text');
+bindProp('propColor', 'color');
+bindProp('propStroke', 'stroke');
+bindProp('propPose', 'pose', 'change');
+bindProp('propSkin', 'skin');
+bindProp('propHair', 'hair');
+bindProp('propShirt', 'shirt');
+bindProp('propPants', 'pants');
+bindProp('propCape', 'cape', 'change');
+bindProp('propScale', 'scale');
+bindProp('propRotate', 'rotation');
 bindProp('propGlow', 'glow');
-onClick('deleteLayerBtn', () => { 
-state.layers = state.layers.filter(l => l.id !== state.selectedId); 
-state.selectedId = state.layers.length ? state.layers.at(-1).id: null; 
-updateUI(); 
-render(); 
+onClick('deleteLayerBtn', function() {
+state.layers = state.layers.filter(function(l) { return l.id !== state.selectedId; });
+state.selectedId = state.layers.length ? state.layers.at(-1).id : null;
+updateUI();
+render();
 });
-onClick('bringForwardBtn', () => { 
-const idx = state.layers.findIndex(l => l.id === state.selectedId); 
-if (idx > -1 && idx < state.layers.length - 1) { 
-const removed = state.layers.splice(idx, 1); 
-state.layers.push(removed.at(0)); 
-updateUI(); 
-render(); 
-} 
+onClick('bringForwardBtn', function() {
+const idx = state.layers.findIndex(function(l) { return l.id === state.selectedId; });
+if (idx > -1 && idx < state.layers.length - 1) {
+const removed = state.layers.splice(idx, 1);
+state.layers.push(removed.at(0));
+updateUI();
+render();
+}
 });
-onClick('exportBtn', () => { 
-const link = document.createElement('a'); 
-link.download = 'BloxdWorldCode-thumbnail.png'; 
-link.href = canvas.toDataURL('image/png'); 
-link.click(); 
+onClick('exportBtn', function() {
+const link = document.createElement('a');
+link.download = 'BloxdWorldCode-thumbnail.png';
+link.href = canvas.toDataURL('image/png');
+link.click();
 });
 initTemplate();
