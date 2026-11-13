@@ -42,7 +42,7 @@ function initTemplate() {
       id: 3,
       type: 'text',
       name: 'Main Title',
-      text: 'BLOXD WORLD CODE',
+      text: 'BloxdWorldCode',
       x: 860,
       y: 310,
       scale: 1.0,
