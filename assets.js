@@ -1,29 +1,23 @@
 const BloxdAssets = {
-  // Helper to draw a shaded 3D-style voxel limb/box
   drawVoxelPart(ctx, x, y, w, h, color, shadeDepth = 10) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, h);
 
-    // Right-side 3D shading strip
     ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
     ctx.fillRect(x + w - shadeDepth, y, shadeDepth, h);
 
-    // Top highlight strip
     ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
     ctx.fillRect(x, y, w, 6);
 
-    // Crisp outline
     ctx.strokeStyle = "#090d16";
     ctx.lineWidth = 4;
     ctx.strokeRect(x, y, w, h);
   },
 
-  // Up-to-date Full-Body Bloxd.io Character Model with Poses & Cape
   drawAvatar(ctx, layer) {
     const pose = layer.pose || "hero";
     const pantsColor = layer.pants || "#1e293b";
 
-    // Optional Super Rank Cape behind body
     if (layer.cape) {
       ctx.save();
       ctx.fillStyle = "#dc2626";
@@ -40,7 +34,6 @@ const BloxdAssets = {
       ctx.restore();
     }
 
-    // --- LEGS & SHOES ---
     // Left Leg
     ctx.save();
     ctx.translate(-26, 75);
@@ -59,13 +52,11 @@ const BloxdAssets = {
     this.drawVoxelPart(ctx, -24, 88, 48, 22, "#0f172a", 8);
     ctx.restore();
 
-    // --- TORSO ---
+    // Torso
     this.drawVoxelPart(ctx, -52, -45, 104, 122, layer.shirt, 14);
-    // Collar detail
     ctx.fillStyle = layer.skin;
     ctx.fillRect(-18, -45, 36, 12);
 
-    // --- ARMS ---
     // Left Arm
     ctx.save();
     ctx.translate(-56, -38);
@@ -87,10 +78,10 @@ const BloxdAssets = {
     this.drawVoxelPart(ctx, -2, 0, 34, 38, layer.shirt, 7);
     ctx.restore();
 
-    // --- HEAD & MODERN BLOXD FACE ---
+    // Head
     this.drawVoxelPart(ctx, -50, -148, 100, 100, layer.skin, 14);
 
-    // Hair / Hood with sideburns
+    // Hair / Hood
     ctx.fillStyle = layer.hair;
     ctx.fillRect(-52, -152, 104, 30);
     ctx.fillRect(-52, -126, 14, 26);
@@ -99,7 +90,7 @@ const BloxdAssets = {
     ctx.lineWidth = 4;
     ctx.strokeRect(-52, -152, 104, 30);
 
-    // Modern Bloxd.io Eyes & Eyebrows
+    // Eyes & Eyebrows
     ctx.fillStyle = layer.hair;
     ctx.fillRect(-35, -108, 24, 6);
     ctx.fillRect(11, -108, 24, 6);
@@ -108,7 +99,6 @@ const BloxdAssets = {
     ctx.fillRect(-34, -98, 22, 18);
     ctx.fillRect(12, -98, 22, 18);
 
-    // Pupils + Eye Shine
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-25, -98, 13, 18);
     ctx.fillRect(12, -98, 13, 18);
@@ -116,13 +106,12 @@ const BloxdAssets = {
     ctx.fillRect(-23, -95, 5, 5);
     ctx.fillRect(14, -95, 5, 5);
 
-    // Subtle Smile
     ctx.fillStyle = "#7c2d12";
     ctx.fillRect(-12, -66, 24, 5);
   },
 
-  // Helper to render crisp 10x10 pixel-art Bloxd items
-  drawPixelGrid(ctx, rows, colors, px = 15) {
+  drawPixelGrid(ctx, rowString, colors, px = 15) {
+    const rows = rowString.split(",");
     ctx.save();
     const size = rows.length;
     ctx.translate(-(size * px) / 2, -(size * px) / 2);
@@ -142,19 +131,8 @@ const BloxdAssets = {
   },
 
   drawSword(ctx) {
-    const rows = [
-      "0000000211",
-      "0000002112",
-      "0000021120",
-      "0000211200",
-      "0002112000",
-      "0321120000",
-      "0333200000",
-      "0043300000",
-      "0400300000",
-      "4000000000"
-    ];
-    this.drawPixelGrid(ctx, rows, {
+    const grid = "0000000211,0000002112,0000021120,0000211200,0002112000,0321120000,0333200000,0043300000,0400300000,4000000000";
+    this.drawPixelGrid(ctx, grid, {
       "1": "#0284c7",
       "2": "#7dd3fc",
       "3": "#1e3a8a",
@@ -163,19 +141,8 @@ const BloxdAssets = {
   },
 
   drawKnightSword(ctx) {
-    const rows = [
-      "0000000211",
-      "0000002112",
-      "0000021120",
-      "0000211200",
-      "0502112000",
-      "0551120000",
-      "0055550000",
-      "0040550000",
-      "0400000000",
-      "5000000000"
-    ];
-    this.drawPixelGrid(ctx, rows, {
+    const grid = "0000000211,0000002112,0000021120,0000211200,0502112000,0551120000,0055550000,0040550000,0400000000,5000000000";
+    this.drawPixelGrid(ctx, grid, {
       "1": "#94a3b8",
       "2": "#f8fafc",
       "4": "#78350f",
@@ -184,19 +151,8 @@ const BloxdAssets = {
   },
 
   drawMoonstonePickaxe(ctx) {
-    const rows = [
-      "0011111000",
-      "0122221100",
-      "1210002110",
-      "1100021011",
-      "0000400011",
-      "0004000001",
-      "0040000000",
-      "0400000000",
-      "4000000000",
-      "0000000000"
-    ];
-    this.drawPixelGrid(ctx, rows, {
+    const grid = "0011111000,0122221100,1210002110,1100021011,0000400011,0004000001,0040000000,0400000000,4000000000,0000000000";
+    this.drawPixelGrid(ctx, grid, {
       "1": "#0284c7",
       "2": "#bae6fd",
       "4": "#92400e"
@@ -204,19 +160,8 @@ const BloxdAssets = {
   },
 
   drawMoonstoneOrb(ctx) {
-    const rows = [
-      "0001111000",
-      "0012222100",
-      "0123322210",
-      "1233221121",
-      "1222211121",
-      "1221111221",
-      "0121122210",
-      "0012222100",
-      "0001111000",
-      "0000000000"
-    ];
-    this.drawPixelGrid(ctx, rows, {
+    const grid = "0001111000,0012222100,0123322210,1233221121,1222211121,1221111221,0121122210,0012222100,0001111000,0000000000";
+    this.drawPixelGrid(ctx, grid, {
       "1": "#0369a1",
       "2": "#38bdf8",
       "3": "#e0f2fe"
@@ -224,19 +169,8 @@ const BloxdAssets = {
   },
 
   drawFireball(ctx) {
-    const rows = [
-      "0000110000",
-      "0011221000",
-      "0122332100",
-      "1233332210",
-      "1233333211",
-      "1233333210",
-      "0123332100",
-      "0012221000",
-      "0001110000",
-      "0000000000"
-    ];
-    this.drawPixelGrid(ctx, rows, {
+    const grid = "0000110000,0011221000,0122332100,1233332210,1233333211,1233333210,0123332100,0012221000,0001110000,0000000000";
+    this.drawPixelGrid(ctx, grid, {
       "1": "#dc2626",
       "2": "#f97316",
       "3": "#fef08a"
@@ -255,3 +189,4 @@ const BloxdAssets = {
     ctx.strokeRect(-95, -25, 190, 70);
   }
 };
+
