@@ -13,6 +13,16 @@ let state = {
   dragOffsetY: 0
 };
 
+function onClick(id, fn) {
+  const el = document.getElementById(id);
+  if (el) el.onclick = fn;
+}
+
+function onEvent(id, evt, fn) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(evt, fn);
+}
+
 function initTemplate() {
   state.layers = [
     {
@@ -58,7 +68,7 @@ function initTemplate() {
       id: 4,
       type: 'text',
       name: 'Subtitle',
-      text: 'The Ulitmate site for bloxd!',
+      text: 'THE ULTIMATE SITE FOR BLOXD!',
       x: 860,
       y: 410,
       scale: 0.65,
@@ -181,8 +191,9 @@ function render() {
 
 function updateUI() {
   const list = document.getElementById('layerList');
+  if (!list) return;
   list.innerHTML = '';
-  [...state.layers].reverse().forEach(layer => {
+  state.layers.slice().reverse().forEach(layer => {
     const div = document.createElement('div');
     div.className = 'layer-item' + (layer.id === state.selectedId ? ' active' : '');
     div.textContent = layer.type === 'text' ? `T: ${layer.text}` : layer.name;
@@ -192,30 +203,35 @@ function updateUI() {
 
   const selected = state.layers.find(l => l.id === state.selectedId);
   const inspector = document.getElementById('inspector');
+  if (!inspector) return;
   if (!selected) {
     inspector.style.display = 'none';
     return;
   }
 
   inspector.style.display = 'flex';
-  document.getElementById('textControls').style.display = selected.type === 'text' ? 'flex' : 'none';
-  document.getElementById('avatarControls').style.display = selected.type === 'avatar' ? 'flex' : 'none';
+  const textCtrl = document.getElementById('textControls');
+  const avatarCtrl = document.getElementById('avatarControls');
+  if (textCtrl) textCtrl.style.display = selected.type === 'text' ? 'flex' : 'none';
+  if (avatarCtrl) avatarCtrl.style.display = selected.type === 'avatar' ? 'flex' : 'none';
 
-  document.getElementById('propScale').value = selected.scale;
-  document.getElementById('propRotate').value = selected.rotation;
-  document.getElementById('propGlow').value = selected.glow || '#000000';
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('propScale', selected.scale);
+  setVal('propRotate', selected.rotation);
+  setVal('propGlow', selected.glow || '#000000');
 
   if (selected.type === 'text') {
-    document.getElementById('propText').value = selected.text;
-    document.getElementById('propColor').value = selected.color;
-    document.getElementById('propStroke').value = selected.stroke;
+    setVal('propText', selected.text);
+    setVal('propColor', selected.color);
+    setVal('propStroke', selected.stroke);
   } else if (selected.type === 'avatar') {
-    document.getElementById('propPose').value = selected.pose || 'hero';
-    document.getElementById('propSkin').value = selected.skin;
-    document.getElementById('propHair').value = selected.hair;
-    document.getElementById('propShirt').value = selected.shirt;
-    document.getElementById('propPants').value = selected.pants || '#1e293b';
-    document.getElementById('propCape').checked = Boolean(selected.cape);
+    setVal('propPose', selected.pose || 'hero');
+    setVal('propSkin', selected.skin);
+    setVal('propHair', selected.hair);
+    setVal('propShirt', selected.shirt);
+    setVal('propPants', selected.pants || '#1e293b');
+    const capeEl = document.getElementById('propCape');
+    if (capeEl) capeEl.checked = Boolean(selected.cape);
   }
 }
 
@@ -255,20 +271,20 @@ canvas.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', () => { state.isDragging = false; });
 
-document.getElementById('canvasPreset').addEventListener('change', (e) => {
-  const [w, h] = e.target.value.split('x').map(Number);
-  canvas.width = w;
-  canvas.height = h;
+onEvent('canvasPreset', 'change', (e) => {
+  const parts = e.target.value.split('x');
+  canvas.width = Number(parts.item ? parts.item(0) : parts.at(0));
+  canvas.height = Number(parts.at(1));
   render();
 });
 
-document.getElementById('bgPreset').addEventListener('change', (e) => {
+onEvent('bgPreset', 'change', (e) => {
   state.bgImage = null;
   state.bgPreset = e.target.value;
   render();
 });
 
-document.getElementById('bgUpload').addEventListener('change', (e) => {
+onEvent('bgUpload', 'change', (e) => {
   const file = e.target.files.item(0);
   if (!file) return;
   const img = new Image();
@@ -276,8 +292,8 @@ document.getElementById('bgUpload').addEventListener('change', (e) => {
   img.src = URL.createObjectURL(file);
 });
 
-document.getElementById('bgBlur').addEventListener('input', (e) => { state.bgBlur = e.target.value; render(); });
-document.getElementById('bgVignette').addEventListener('input', (e) => { state.bgVignette = e.target.value; render(); });
+onEvent('bgBlur', 'input', (e) => { state.bgBlur = e.target.value; render(); });
+onEvent('bgVignette', 'input', (e) => { state.bgVignette = e.target.value; render(); });
 
 function addLayer(obj) {
   const id = Date.now();
@@ -287,35 +303,37 @@ function addLayer(obj) {
   render();
 }
 
-document.getElementById('addTextBtn').onclick = () => addLayer({ type: 'text', name: 'Text', text: 'NEW TEXT', color: '#ffffff', stroke: '#000000' });
-document.getElementById('addPlayerBtn').onclick = () => addLayer({ type: 'avatar', name: 'Bloxd Avatar', pose: 'hero', skin: '#f5cba7', shirt: '#ef4444', pants: '#1e293b', hair: '#1e293b', cape: false });
-document.getElementById('addKnightSwordBtn').onclick = () => addLayer({ type: 'knightSword', name: 'Knight Sword', glow: '#facc15' });
-document.getElementById('addSwordBtn').onclick = () => addLayer({ type: 'sword', name: 'Diamond Sword', glow: '#38bdf8' });
-document.getElementById('addMoonPickBtn').onclick = () => addLayer({ type: 'moonPick', name: 'Moonstone Pickaxe', glow: '#38bdf8' });
-document.getElementById('addOrbBtn').onclick = () => addLayer({ type: 'orb', name: 'Moonstone Orb', glow: '#38bdf8' });
-document.getElementById('addFireballBtn').onclick = () => addLayer({ type: 'fireball', name: 'Fireball', glow: '#f97316' });
-document.getElementById('addBedBtn').onclick = () => addLayer({ type: 'bed', name: 'Bedwars Bed' });
-document.getElementById('stickerUpload').addEventListener('change', (e) => { 
+onClick('addTextBtn', () => addLayer({ type: 'text', name: 'Text', text: 'NEW TEXT', color: '#ffffff', stroke: '#000000' }));
+onClick('addPlayerBtn', () => addLayer({ type: 'avatar', name: 'Bloxd Avatar', pose: 'hero', skin: '#f5cba7', shirt: '#ef4444', pants: '#1e293b', hair: '#1e293b', cape: false }));
+onClick('addKnightSwordBtn', () => addLayer({ type: 'knightSword', name: 'Knight Sword', glow: '#facc15' }));
+onClick('addSwordBtn', () => addLayer({ type: 'sword', name: 'Diamond Sword', glow: '#38bdf8' }));
+onClick('addMoonPickBtn', () => addLayer({ type: 'moonPick', name: 'Moonstone Pickaxe', glow: '#38bdf8' }));
+onClick('addOrbBtn', () => addLayer({ type: 'orb', name: 'Moonstone Orb', glow: '#38bdf8' }));
+onClick('addFireballBtn', () => addLayer({ type: 'fireball', name: 'Fireball', glow: '#f97316' }));
+onClick('addBedBtn', () => addLayer({ type: 'bed', name: 'Bedwars Bed' }));
+
+onEvent('stickerUpload', 'change', (e) => {
 const file = e.target.files.item(0); 
 if (!file) return; 
 const img = new Image(); 
 img.onload = () => addLayer({ type: 'image', name: file.name.slice(0, 14), img }); 
-img.src = URL.createObjectURL(file) 
-;
+img.src = URL.createObjectURL(file); 
+});
 const bindProp = (elId, prop, eventType = 'input') => { 
-document.getElementById(elId).addEventListener(eventType, (e) => { 
+onEvent(elId, eventType, (e) => { 
 const sel = state.layers.find(l => l.id === state.selectedId); 
 if (!sel) return; 
 if (e.target.type === 'checkbox') { 
 sel[prop] = e.target.checked; 
 } else if (e.target.type === 'range') { 
-sel[prop] = parseFloat(e.target.value); } 
-else { sel[prop] = e.target.value ; };
-
-
-
-
-
+sel[prop] = parseFloat(e.target.value); 
+} else { 
+sel[prop] = e.target.value; 
+} 
+if (prop === 'text') updateUI( 
+) 
+; 
+};
 bindProp('propText', 'text'); 
 bindProp('propColor', 'color'); 
 bindProp('propStroke', 'stroke'); 
@@ -328,25 +346,25 @@ bindProp('propCape', 'cape', 'change');
 bindProp('propScale', 'scale'); 
 bindProp('propRotate', 'rotation'); 
 bindProp('propGlow', 'glow');
-document.getElementById('deleteLayerBtn').onclick = () => { 
+onClick('deleteLayerBtn', () => { 
 state.layers = state.layers.filter(l => l.id !== state.selectedId); 
-state.selectedId = state.layers.length ? state.layers[state.layers.length - 1].id: null; 
+state.selectedId = state.layers.length ? state.layers.at(-1).id: null; 
 updateUI(); 
 render(); 
-};
-document.getElementById('bringForwardBtn').onclick = () => { 
+});
+onClick('bringForwardBtn', () => { 
 const idx = state.layers.findIndex(l => l.id === state.selectedId); 
 if (idx > -1 && idx < state.layers.length - 1) { 
-const [item] = state.layers.splice(idx, 1); 
-state.layers.push(item); 
+const removed = state.layers.splice(idx, 1); 
+state.layers.push(removed.at(0)); 
 updateUI(); 
 render(); 
 } 
-};
-document.getElementById('exportBtn').onclick = () => { 
+});
+onClick('exportBtn', () => { 
 const link = document.createElement('a'); 
 link.download = 'BloxdWorldCode-thumbnail.png'; 
 link.href = canvas.toDataURL('image/png'); 
 link.click(); 
-};
+});
 initTemplate();
