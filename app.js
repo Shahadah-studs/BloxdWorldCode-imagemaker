@@ -58,7 +58,7 @@ function initTemplate() {
       id: 4,
       type: 'text',
       name: 'Subtitle',
-      text: 'The Ulitmate site for bloxd',
+      text: 'The Ulitmate site for bloxd!',
       x: 860,
       y: 410,
       scale: 0.65,
