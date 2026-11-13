@@ -19,32 +19,35 @@ function initTemplate() {
       id: 1,
       type: 'avatar',
       name: 'Bloxd Player',
-      x: 340,
-      y: 420,
+      x: 310,
+      y: 380,
       scale: 1.25,
-      rotation: -6,
+      rotation: -4,
+      pose: 'battle',
       skin: '#f5cba7',
       shirt: '#2563eb',
+      pants: '#1e293b',
       hair: '#0f172a',
+      cape: true,
       glow: '#000000'
     },
     {
       id: 2,
-      type: 'sword',
-      name: 'Diamond Sword',
-      x: 520,
-      y: 380,
-      scale: 1.1,
-      rotation: 22,
-      glow: '#38bdf8'
+      type: 'knightSword',
+      name: 'Knight Sword',
+      x: 475,
+      y: 325,
+      scale: 1.15,
+      rotation: 18,
+      glow: '#facc15'
     },
     {
       id: 3,
       type: 'text',
       name: 'Main Title',
-      text: 'BloxdWorldCode',
+      text: 'BLOXD WORLD CODE',
       x: 860,
-      y: 310,
+      y: 300,
       scale: 1.0,
       rotation: -3,
       color: '#facc15',
@@ -55,17 +58,17 @@ function initTemplate() {
       id: 4,
       type: 'text',
       name: 'Subtitle',
-      text: 'EPIC PVP & PARKOUR!',
+      text: 'THE ULTIMATE SITE FOR BLOXD!',
       x: 860,
-      y: 420,
-      scale: 0.75,
+      y: 410,
+      scale: 0.65,
       rotation: -3,
       color: '#ffffff',
       stroke: '#000000',
       glow: '#3b82f6'
     }
   ];
-  state.selectedId = 3;
+  state.selectedId = 1;
   updateUI();
   render();
 }
@@ -127,41 +130,47 @@ function drawBackground() {
 
 function drawLayer(layer) {
   ctx.save();
-  ctx.translate(layer.x, layer.y);
-  ctx.rotate((layer.rotation * Math.PI) / 180);
-  ctx.scale(layer.scale, layer.scale);
+  try {
+    ctx.translate(layer.x, layer.y);
+    ctx.rotate((layer.rotation * Math.PI) / 180);
+    ctx.scale(layer.scale, layer.scale);
 
-  ctx.shadowColor = layer.glow || 'rgba(0,0,0,0.7)';
-  ctx.shadowBlur = 24;
-  ctx.shadowOffsetY = 8;
+    ctx.shadowColor = layer.glow || 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
 
-  if (layer.type === 'text') {
-    ctx.font = '900 84px Impact, "Arial Black", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 14;
-    ctx.strokeStyle = layer.stroke || '#000000';
-    ctx.strokeText(layer.text, 0, 0);
-    ctx.fillStyle = layer.color || '#ffffff';
-    ctx.fillText(layer.text, 0, 0);
-  } else if (layer.type === 'avatar') {
-    BloxdAssets.drawAvatar(ctx, layer);
-  } else if (layer.type === 'sword') {
-    BloxdAssets.drawSword(ctx);
-  } else if (layer.type === 'block') {
-    BloxdAssets.drawGrassBlock(ctx);
-  } else if (layer.type === 'moonstone') {
-    BloxdAssets.drawMoonstone(ctx);
-  } else if (layer.type === 'bed') {
-    BloxdAssets.drawBedwarsBed(ctx);
-  } else if (layer.type === 'image' && layer.img) {
-    const w = 260;
-    const h = (layer.img.height / layer.img.width) * w;
-    ctx.drawImage(layer.img, -w / 2, -h / 2, w, h);
+    if (layer.type === 'text') {
+      ctx.font = '900 84px Impact, "Arial Black", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = layer.stroke || '#000000';
+      ctx.strokeText(layer.text, 0, 0);
+      ctx.fillStyle = layer.color || '#ffffff';
+      ctx.fillText(layer.text, 0, 0);
+    } else if (layer.type === 'avatar') {
+      BloxdAssets.drawAvatar(ctx, layer);
+    } else if (layer.type === 'sword') {
+      BloxdAssets.drawSword(ctx);
+    } else if (layer.type === 'knightSword') {
+      BloxdAssets.drawKnightSword(ctx);
+    } else if (layer.type === 'moonPick') {
+      BloxdAssets.drawMoonstonePickaxe(ctx);
+    } else if (layer.type === 'orb') {
+      BloxdAssets.drawMoonstoneOrb(ctx);
+    } else if (layer.type === 'fireball') {
+      BloxdAssets.drawFireball(ctx);
+    } else if (layer.type === 'bed') {
+      BloxdAssets.drawBedwarsBed(ctx);
+    } else if (layer.type === 'image' && layer.img) {
+      const w = 260;
+      const h = (layer.img.height / layer.img.width) * w;
+      ctx.drawImage(layer.img, -w / 2, -h / 2, w, h);
+    }
+  } finally {
+    ctx.restore();
   }
-
-  ctx.restore();
 }
 
 function render() {
@@ -201,9 +210,12 @@ function updateUI() {
     document.getElementById('propColor').value = selected.color;
     document.getElementById('propStroke').value = selected.stroke;
   } else if (selected.type === 'avatar') {
+    document.getElementById('propPose').value = selected.pose || 'hero';
     document.getElementById('propSkin').value = selected.skin;
-    document.getElementById('propShirt').value = selected.shirt;
     document.getElementById('propHair').value = selected.hair;
+    document.getElementById('propShirt').value = selected.shirt;
+    document.getElementById('propPants').value = selected.pants || '#1e293b';
+    document.getElementById('propCape').checked = Boolean(selected.cape);
   }
 }
 
@@ -219,7 +231,7 @@ canvas.addEventListener('mousedown', (e) => {
   const pos = getMousePos(e);
   for (let i = state.layers.length - 1; i >= 0; i--) {
     const l = state.layers[i];
-    if (Math.abs(pos.x - l.x) < 160 * l.scale && Math.abs(pos.y - l.y) < 120 * l.scale) {
+    if (Math.abs(pos.x - l.x) < 160 * l.scale && Math.abs(pos.y - l.y) < 160 * l.scale) {
       state.selectedId = l.id;
       state.isDragging = true;
       state.dragOffsetX = pos.x - l.x;
@@ -276,38 +288,44 @@ function addLayer(obj) {
 }
 
 document.getElementById('addTextBtn').onclick = () => addLayer({ type: 'text', name: 'Text', text: 'NEW TEXT', color: '#ffffff', stroke: '#000000' });
-document.getElementById('addPlayerBtn').onclick = () => addLayer({ type: 'avatar', name: 'Bloxd Avatar', skin: '#f5cba7', shirt: '#ef4444', hair: '#1e293b' });
+document.getElementById('addPlayerBtn').onclick = () => addLayer({ type: 'avatar', name: 'Bloxd Avatar', pose: 'hero', skin: '#f5cba7', shirt: '#ef4444', pants: '#1e293b', hair: '#1e293b', cape: false });
+document.getElementById('addKnightSwordBtn').onclick = () => addLayer({ type: 'knightSword', name: 'Knight Sword', glow: '#facc15' });
 document.getElementById('addSwordBtn').onclick = () => addLayer({ type: 'sword', name: 'Diamond Sword', glow: '#38bdf8' });
-document.getElementById('addBlockBtn').onclick = () => addLayer({ type: 'block', name: 'Grass Block' });
-document.getElementById('addMoonstoneBtn').onclick = () => addLayer({ type: 'moonstone', name: 'Moonstone', glow: '#38bdf8' });
+document.getElementById('addMoonPickBtn').onclick = () => addLayer({ type: 'moonPick', name: 'Moonstone Pickaxe', glow: '#38bdf8' });
+document.getElementById('addOrbBtn').onclick = () => addLayer({ type: 'orb', name: 'Moonstone Orb', glow: '#38bdf8' });
+document.getElementById('addFireballBtn').onclick = () => addLayer({ type: 'fireball', name: 'Fireball', glow: '#f97316' });
 document.getElementById('addBedBtn').onclick = () => addLayer({ type: 'bed', name: 'Bedwars Bed' });
+document.getElementById('stickerUpload').addEventListener('change', (e) => { 
+const file = e.target.files.item(0); 
+if (!file) return; 
+const img = new Image(); 
+img.onload = () => addLayer({ type: 'image', name: file.name.slice(0, 14), img }); 
+img.src = URL.createObjectURL(file) 
+;
+const bindProp = (elId, prop, eventType = 'input') => { 
+document.getElementById(elId).addEventListener(eventType, (e) => { 
+const sel = state.layers.find(l => l.id === state.selectedId); 
+if (!sel) return; 
+if (e.target.type === 'checkbox') { 
+sel[prop] = e.target.checked; 
+} else if (e.target.type === 'range') { 
+sel[prop] = parseFloat(e.target.value); } 
+else { sel[prop] = e.target.value ; };
 
-document.getElementById('stickerUpload').addEventListener('change', (e) => {
-  const file = e.target.files.item(0);
-  if (!file) return;
-  const img = new Image();
-  img.onload = () => addLayer({ type: 'image', name: file.name.slice(0, 14), img });
-  img.src = URL.createObjectURL(file);
-});
 
-const bindProp = (elId, prop) => {
-  document.getElementById(elId).addEventListener('input', (e) => {
-    const sel = state.layers.find(l => l.id === state.selectedId);
-    if (!sel) return;
-    sel[prop] = e.target.type === 'range' ? parseFloat(e.target.value) : e.target.value;
-    if (prop === 'text') updateUI();
-    render();
-  });
-};
 
-bindProp('propText', 'text');
-bindProp('propColor', 'color');
-bindProp('propStroke', 'stroke');
-bindProp('propSkin', 'skin');
-bindProp('propShirt', 'shirt');
-bindProp('propHair', 'hair');
-bindProp('propScale', 'scale');
 
+
+bindProp('propText', 'text'); 
+bindProp('propColor', 'color'); 
+bindProp('propStroke', 'stroke'); 
+bindProp('propPose', 'pose', 'change'); 
+bindProp('propSkin', 'skin'); 
+bindProp('propHair', 'hair'); 
+bindProp('propShirt', 'shirt'); 
+bindProp('propPants', 'pants'); 
+bindProp('propCape', 'cape', 'change'); 
+bindProp('propScale', 'scale'); 
 bindProp('propRotate', 'rotation'); 
 bindProp('propGlow', 'glow');
 document.getElementById('deleteLayerBtn').onclick = () => { 
@@ -316,19 +334,19 @@ state.selectedId = state.layers.length ? state.layers[state.layers.length - 1].i
 updateUI(); 
 render(); 
 };
-document.getElementById('bringForwardBtn').onclick = () => {
-const idx = state.layers.findIndex(l => l.id === state.selectedId);
-if (idx > -1 && idx < state.layers.length - 1) {
-const [item] = state.layers.splice(idx, 1);
-state.layers.push(item);
-updateUI();
-render();
-}
+document.getElementById('bringForwardBtn').onclick = () => { 
+const idx = state.layers.findIndex(l => l.id === state.selectedId); 
+if (idx > -1 && idx < state.layers.length - 1) { 
+const [item] = state.layers.splice(idx, 1); 
+state.layers.push(item); 
+updateUI(); 
+render(); 
+} 
 };
-document.getElementById('exportBtn').onclick = () => {
-const link = document.createElement('a');
-link.download = 'BloxdWorldCode-thumbnail.png';
-link.href = canvas.toDataURL('image/png');
-link.click();
+document.getElementById('exportBtn').onclick = () => { 
+const link = document.createElement('a'); 
+link.download = 'BloxdWorldCode-thumbnail.png'; 
+link.href = canvas.toDataURL('image/png'); 
+link.click(); 
 };
 initTemplate();
