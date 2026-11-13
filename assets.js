@@ -1,4 +1,4 @@
-// Bloxd.io Voxel & Pixel Asset Renderers
+// BloxdWorldCode Picture maker | Assets
 const BloxdAssets = {
   drawAvatar(ctx, layer) {
     // Torso
@@ -33,24 +33,29 @@ const BloxdAssets = {
   },
 
   drawSword(ctx) {
-    const px = 16;
-    const pattern = [,
- ,
- ,
- ,
- ,
- ,
- ,
-      [4, 0, 0, 0, 0, 0, 0, 0]
+    const px = 18;
+    const rows = [
+      "00000021",
+      "00000212",
+      "00002120",
+      "00021200",
+      "03212000",
+      "00330000",
+      "04003000",
+      "40000000"
     ];
-    const colors = { 1: '#0284c7', 2: '#7dd3fc', 3: '#1e3a8a', 4: '#92400e' };
+    const colors = { "1": "#0284c7", "2": "#7dd3fc", "3": "#1e3a8a", "4": "#92400e" };
     ctx.save();
-    ctx.translate(-64, -64);
+    ctx.translate(-72, -72);
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
-        if (pattern[r][c]) {
-          ctx.fillStyle = colors[pattern[r][c]];
+        const ch = rows[r].charAt(c);
+        if (ch !== "0") {
+          ctx.fillStyle = colors[ch];
           ctx.fillRect(c * px, r * px, px, px);
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(c * px, r * px, px, px);
         }
       }
     }
@@ -86,16 +91,12 @@ const BloxdAssets = {
   },
 
   drawBedwarsBed(ctx) {
-    // Frame
     ctx.fillStyle = '#78350f';
     ctx.fillRect(-95, 10, 190, 35);
-    // Red Blanket
     ctx.fillStyle = '#dc2626';
     ctx.fillRect(-40, -25, 130, 45);
-    // White Pillow
     ctx.fillStyle = '#f8fafc';
     ctx.fillRect(-90, -25, 50, 45);
-    // Outline
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 5;
     ctx.strokeRect(-95, -25, 190, 70);
