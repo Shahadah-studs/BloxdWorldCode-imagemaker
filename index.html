@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BloxdWorldCode | Picture maker</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
 
   <header>
     <div class="brand">
-     
       <span class="brand-badge">BloxdWorldCode</span>
       <span>Picture maker</span>
     </div>
@@ -25,7 +24,7 @@
   </header>
 
   <div class="workspace">
-    <!-- Left Sidebar: Background & Add Elements -->
+    <!-- Left Sidebar -->
     <div class="sidebar">
       <div class="control-group">
         <div class="section-title">1. Background Scene</div>
@@ -50,13 +49,21 @@
       </div>
 
       <div class="control-group">
-        <div class="section-title">2. Add Bloxd Elements</div>
+        <div class="section-title">2. Bloxd Players & Text</div>
         <div class="grid-2">
           <button id="addTextBtn">+ Title Text</button>
           <button id="addPlayerBtn">+ Bloxd Avatar</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="section-title">3. Bloxd.io Tools & Items</div>
+        <div class="grid-2">
+          <button id="addKnightSwordBtn">+ Knight Sword</button>
           <button id="addSwordBtn">+ Diamond Sword</button>
-          <button id="addBlockBtn">+ Grass Block</button>
-          <button id="addMoonstoneBtn">+ Moonstone</button>
+          <button id="addMoonPickBtn">+ Moon Pickaxe</button>
+          <button id="addOrbBtn">+ Moonstone Orb</button>
+          <button id="addFireballBtn">+ Fireball</button>
           <button id="addBedBtn">+ Bedwars Bed</button>
         </div>
         <label class="file-label">Or upload custom PNG sticker:</label>
@@ -65,7 +72,7 @@
 
       <div class="control-group no-border">
         <div class="section-title">Quick Tips</div>
-        <p class="hint">Click and drag any item on the canvas to move it. Select a layer on the right to customize colors, outlines, and size.</p>
+        <p class="hint">Drag any layer on the canvas to position it. Select your Bloxd Avatar to switch poses, add a Super Cape, or customize outfit colors.</p>
       </div>
     </div>
 
@@ -74,7 +81,7 @@
       <canvas id="canvas" width="1280" height="720"></canvas>
     </div>
 
-    <!-- Right Sidebar: Layers & Inspector -->
+    <!-- Right Sidebar -->
     <div class="sidebar-right">
       <div class="control-group">
         <div class="section-title">Layers</div>
@@ -98,16 +105,33 @@
 
         <div id="avatarControls" class="sub-controls" style="display:none;">
           <div class="row">
+            <label>Pose</label>
+            <select id="propPose">
+              <option value="hero">Hero Stance</option>
+              <option value="wave">Action / Wave</option>
+              <option value="battle">Battle Ready</option>
+              <option value="run">Parkour Sprint</option>
+            </select>
+          </div>
+          <div class="row">
             <label>Skin Tone</label>
             <input type="color" id="propSkin" value="#f5cba7" />
           </div>
           <div class="row">
-            <label>Shirt Color</label>
-            <input type="color" id="propShirt" value="#3b82f6" />
+            <label>Hair / Hood</label>
+            <input type="color" id="propHair" value="#1e293b" />
           </div>
           <div class="row">
-            <label>Helmet / Hair</label>
-            <input type="color" id="propHair" value="#1e293b" />
+            <label>Shirt Color</label>
+            <input type="color" id="propShirt" value="#2563eb" />
+          </div>
+          <div class="row">
+            <label>Pants Color</label>
+            <input type="color" id="propPants" value="#1e293b" />
+          </div>
+          <div class="row">
+            <label>Super Cape</label>
+            <input type="checkbox" id="propCape" />
           </div>
         </div>
 
@@ -132,7 +156,7 @@
     </div>
   </div>
 
-    <script src="assets.js?v=3"></script>
+  <script src="assets.js?v=3"></script>
   <script src="app.js?v=3"></script>
 </body>
 </html>
