@@ -1,60 +1,139 @@
-// BloxdWorldCode Picture maker | Assets
 const BloxdAssets = {
-  drawAvatar(ctx, layer) {
-    // Torso
-    ctx.fillStyle = layer.shirt;
-    ctx.fillRect(-65, -10, 130, 150);
-    // Arms
-    ctx.fillStyle = layer.skin;
-    ctx.fillRect(-105, -10, 38, 135);
-    ctx.fillRect(67, -10, 38, 135);
-    // Sleeves
-    ctx.fillStyle = layer.shirt;
-    ctx.fillRect(-105, -10, 38, 45);
-    ctx.fillRect(67, -10, 38, 45);
-    // Head
-    ctx.fillStyle = layer.skin;
-    ctx.fillRect(-60, -130, 120, 120);
-    // Hair / Helmet top
-    ctx.fillStyle = layer.hair;
-    ctx.fillRect(-62, -134, 124, 36);
-    // Bloxd Eyes
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-40, -78, 28, 20);
-    ctx.fillRect(12, -78, 28, 20);
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(-28, -78, 16, 20);
-    ctx.fillRect(12, -78, 16, 20);
-    // Outlines
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 5;
-    ctx.strokeRect(-60, -130, 120, 120);
-    ctx.strokeRect(-65, -10, 130, 150);
+  // Helper to draw a shaded 3D-style voxel limb/box
+  drawVoxelPart(ctx, x, y, w, h, color, shadeDepth = 10) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+
+    // Right-side 3D shading strip
+    ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+    ctx.fillRect(x + w - shadeDepth, y, shadeDepth, h);
+
+    // Top highlight strip
+    ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
+    ctx.fillRect(x, y, w, 6);
+
+    // Crisp outline
+    ctx.strokeStyle = "#090d16";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(x, y, w, h);
   },
 
-  drawSword(ctx) {
-    const px = 18;
-    const rows = [
-      "00000021",
-      "00000212",
-      "00002120",
-      "00021200",
-      "03212000",
-      "00330000",
-      "04003000",
-      "40000000"
-    ];
-    const colors = { "1": "#0284c7", "2": "#7dd3fc", "3": "#1e3a8a", "4": "#92400e" };
+  // Up-to-date Full-Body Bloxd.io Character Model with Poses & Cape
+  drawAvatar(ctx, layer) {
+    const pose = layer.pose || "hero";
+    const pantsColor = layer.pants || "#1e293b";
+
+    // Optional Super Rank Cape behind body
+    if (layer.cape) {
+      ctx.save();
+      ctx.fillStyle = "#dc2626";
+      ctx.beginPath();
+      ctx.moveTo(-58, -45);
+      ctx.lineTo(58, -45);
+      ctx.lineTo(78, 165);
+      ctx.lineTo(-78, 165);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "#facc15";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // --- LEGS & SHOES ---
+    // Left Leg
     ctx.save();
-    ctx.translate(-72, -72);
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
+    ctx.translate(-26, 75);
+    if (pose === "run") ctx.rotate(0.38);
+    if (pose === "hero") ctx.rotate(0.06);
+    this.drawVoxelPart(ctx, -22, 0, 44, 105, pantsColor, 8);
+    this.drawVoxelPart(ctx, -24, 88, 48, 22, "#0f172a", 8);
+    ctx.restore();
+
+    // Right Leg
+    ctx.save();
+    ctx.translate(26, 75);
+    if (pose === "run") ctx.rotate(-0.42);
+    if (pose === "hero") ctx.rotate(-0.06);
+    this.drawVoxelPart(ctx, -22, 0, 44, 105, pantsColor, 8);
+    this.drawVoxelPart(ctx, -24, 88, 48, 22, "#0f172a", 8);
+    ctx.restore();
+
+    // --- TORSO ---
+    this.drawVoxelPart(ctx, -52, -45, 104, 122, layer.shirt, 14);
+    // Collar detail
+    ctx.fillStyle = layer.skin;
+    ctx.fillRect(-18, -45, 36, 12);
+
+    // --- ARMS ---
+    // Left Arm
+    ctx.save();
+    ctx.translate(-56, -38);
+    if (pose === "wave") ctx.rotate(2.45);
+    else if (pose === "battle") ctx.rotate(0.45);
+    else if (pose === "run") ctx.rotate(-0.55);
+    else ctx.rotate(0.14);
+    this.drawVoxelPart(ctx, -32, 0, 34, 105, layer.skin, 7);
+    this.drawVoxelPart(ctx, -32, 0, 34, 38, layer.shirt, 7);
+    ctx.restore();
+
+    // Right Arm
+    ctx.save();
+    ctx.translate(56, -38);
+    if (pose === "battle") ctx.rotate(-0.85);
+    else if (pose === "run") ctx.rotate(0.55);
+    else ctx.rotate(-0.14);
+    this.drawVoxelPart(ctx, -2, 0, 34, 105, layer.skin, 7);
+    this.drawVoxelPart(ctx, -2, 0, 34, 38, layer.shirt, 7);
+    ctx.restore();
+
+    // --- HEAD & MODERN BLOXD FACE ---
+    this.drawVoxelPart(ctx, -50, -148, 100, 100, layer.skin, 14);
+
+    // Hair / Hood with sideburns
+    ctx.fillStyle = layer.hair;
+    ctx.fillRect(-52, -152, 104, 30);
+    ctx.fillRect(-52, -126, 14, 26);
+    ctx.fillRect(38, -126, 14, 26);
+    ctx.strokeStyle = "#090d16";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(-52, -152, 104, 30);
+
+    // Modern Bloxd.io Eyes & Eyebrows
+    ctx.fillStyle = layer.hair;
+    ctx.fillRect(-35, -108, 24, 6);
+    ctx.fillRect(11, -108, 24, 6);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-34, -98, 22, 18);
+    ctx.fillRect(12, -98, 22, 18);
+
+    // Pupils + Eye Shine
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-25, -98, 13, 18);
+    ctx.fillRect(12, -98, 13, 18);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-23, -95, 5, 5);
+    ctx.fillRect(14, -95, 5, 5);
+
+    // Subtle Smile
+    ctx.fillStyle = "#7c2d12";
+    ctx.fillRect(-12, -66, 24, 5);
+  },
+
+  // Helper to render crisp 10x10 pixel-art Bloxd items
+  drawPixelGrid(ctx, rows, colors, px = 15) {
+    ctx.save();
+    const size = rows.length;
+    ctx.translate(-(size * px) / 2, -(size * px) / 2);
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
         const ch = rows[r].charAt(c);
-        if (ch !== "0") {
+        if (ch !== "0" && colors[ch]) {
           ctx.fillStyle = colors[ch];
           ctx.fillRect(c * px, r * px, px, px);
-          ctx.strokeStyle = "#000000";
-          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(0,0,0,0.45)";
+          ctx.lineWidth = 1.5;
           ctx.strokeRect(c * px, r * px, px, px);
         }
       }
@@ -62,42 +141,116 @@ const BloxdAssets = {
     ctx.restore();
   },
 
-  drawIsoBlock(ctx, topColor, leftColor, rightColor) {
-    ctx.fillStyle = topColor;
-    ctx.beginPath();
-    ctx.moveTo(0, -80); ctx.lineTo(80, -40); ctx.lineTo(0, 0); ctx.lineTo(-80, -40);
-    ctx.closePath(); ctx.fill();
-
-    ctx.fillStyle = leftColor;
-    ctx.beginPath();
-    ctx.moveTo(-80, -40); ctx.lineTo(0, 0); ctx.lineTo(0, 90); ctx.lineTo(-80, 50);
-    ctx.closePath(); ctx.fill();
-
-    ctx.fillStyle = rightColor;
-    ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(80, -40); ctx.lineTo(80, 50); ctx.lineTo(0, 90);
-    ctx.closePath(); ctx.fill();
+  drawSword(ctx) {
+    const rows = [
+      "0000000211",
+      "0000002112",
+      "0000021120",
+      "0000211200",
+      "0002112000",
+      "0321120000",
+      "0333200000",
+      "0043300000",
+      "0400300000",
+      "4000000000"
+    ];
+    this.drawPixelGrid(ctx, rows, {
+      "1": "#0284c7",
+      "2": "#7dd3fc",
+      "3": "#1e3a8a",
+      "4": "#92400e"
+    });
   },
 
-  drawGrassBlock(ctx) {
-    this.drawIsoBlock(ctx, '#22c55e', '#78350f', '#92400e');
+  drawKnightSword(ctx) {
+    const rows = [
+      "0000000211",
+      "0000002112",
+      "0000021120",
+      "0000211200",
+      "0502112000",
+      "0551120000",
+      "0055550000",
+      "0040550000",
+      "0400000000",
+      "5000000000"
+    ];
+    this.drawPixelGrid(ctx, rows, {
+      "1": "#94a3b8",
+      "2": "#f8fafc",
+      "4": "#78350f",
+      "5": "#facc15"
+    });
   },
 
-  drawMoonstone(ctx) {
-    this.drawIsoBlock(ctx, '#bae6fd', '#38bdf8', '#0284c7');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-12, -48, 18, 12);
-    ctx.fillRect(20, -25, 14, 14);
+  drawMoonstonePickaxe(ctx) {
+    const rows = [
+      "0011111000",
+      "0122221100",
+      "1210002110",
+      "1100021011",
+      "0000400011",
+      "0004000001",
+      "0040000000",
+      "0400000000",
+      "4000000000",
+      "0000000000"
+    ];
+    this.drawPixelGrid(ctx, rows, {
+      "1": "#0284c7",
+      "2": "#bae6fd",
+      "4": "#92400e"
+    });
+  },
+
+  drawMoonstoneOrb(ctx) {
+    const rows = [
+      "0001111000",
+      "0012222100",
+      "0123322210",
+      "1233221121",
+      "1222211121",
+      "1221111221",
+      "0121122210",
+      "0012222100",
+      "0001111000",
+      "0000000000"
+    ];
+    this.drawPixelGrid(ctx, rows, {
+      "1": "#0369a1",
+      "2": "#38bdf8",
+      "3": "#e0f2fe"
+    }, 14);
+  },
+
+  drawFireball(ctx) {
+    const rows = [
+      "0000110000",
+      "0011221000",
+      "0122332100",
+      "1233332210",
+      "1233333211",
+      "1233333210",
+      "0123332100",
+      "0012221000",
+      "0001110000",
+      "0000000000"
+    ];
+    this.drawPixelGrid(ctx, rows, {
+      "1": "#dc2626",
+      "2": "#f97316",
+      "3": "#fef08a"
+    }, 14);
   },
 
   drawBedwarsBed(ctx) {
-    ctx.fillStyle = '#78350f';
+    ctx.fillStyle = "#78350f";
     ctx.fillRect(-95, 10, 190, 35);
-    ctx.fillStyle = '#dc2626';
+    ctx.fillStyle = "#dc2626";
     ctx.fillRect(-40, -25, 130, 45);
-    ctx.fillStyle = '#f8fafc';
+    ctx.fillStyle = "#f8fafc";
     ctx.fillRect(-90, -25, 50, 45);
-    ctx.strokeStyle = '#000000';
+    ctx.strokeStyle = "#090d16";
     ctx.lineWidth = 5;
     ctx.strokeRect(-95, -25, 190, 70);
   }
