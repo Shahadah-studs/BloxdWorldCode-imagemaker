@@ -257,7 +257,7 @@ document.getElementById('bgPreset').addEventListener('change', (e) => {
 });
 
 document.getElementById('bgUpload').addEventListener('change', (e) => {
-  const file = e.target.files[0];
+  const file = e.target.files.item(0);
   if (!file) return;
   const img = new Image();
   img.onload = () => { state.bgImage = img; render(); };
@@ -283,7 +283,7 @@ document.getElementById('addMoonstoneBtn').onclick = () => addLayer({ type: 'moo
 document.getElementById('addBedBtn').onclick = () => addLayer({ type: 'bed', name: 'Bedwars Bed' });
 
 document.getElementById('stickerUpload').addEventListener('change', (e) => {
-  const file = e.target.files[0];
+  const file = e.target.files.item(0);
   if (!file) return;
   const img = new Image();
   img.onload = () => addLayer({ type: 'image', name: file.name.slice(0, 14), img });
@@ -307,29 +307,28 @@ bindProp('propSkin', 'skin');
 bindProp('propShirt', 'shirt');
 bindProp('propHair', 'hair');
 bindProp('propScale', 'scale');
-bindProp('propRotate', 'rotation');
+
+bindProp('propRotate', 'rotation'); 
 bindProp('propGlow', 'glow');
-
-
 document.getElementById('deleteLayerBtn').onclick = () => { 
 state.layers = state.layers.filter(l => l.id !== state.selectedId); 
 state.selectedId = state.layers.length ? state.layers[state.layers.length - 1].id: null; 
 updateUI(); 
 render(); 
 };
-document.getElementById('bringForwardBtn').onclick = () => { 
-const idx = state.layers.findIndex(l => l.id === state.selectedId); 
-if (idx > -1 && idx < state.layers.length - 1) { 
-const [item] = state.layers.splice(idx, 1); 
-state.layers.push(item); 
-updateUI(); 
-render(); 
-} 
+document.getElementById('bringForwardBtn').onclick = () => {
+const idx = state.layers.findIndex(l => l.id === state.selectedId);
+if (idx > -1 && idx < state.layers.length - 1) {
+const [item] = state.layers.splice(idx, 1);
+state.layers.push(item);
+updateUI();
+render();
+}
 };
-document.getElementById('exportBtn').onclick = () => { 
-const link = document.createElement('a'); 
-link.download = 'BloxdWorldCode-thumbnail.png'; 
-link.href = canvas.toDataURL('image/png'); 
-link.click(); 
+document.getElementById('exportBtn').onclick = () => {
+const link = document.createElement('a');
+link.download = 'BloxdWorldCode-thumbnail.png';
+link.href = canvas.toDataURL('image/png');
+link.click();
 };
 initTemplate();
